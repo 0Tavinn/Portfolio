@@ -5,26 +5,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const navMenu   = document.getElementById('nav-menu');
   if (hamburger && navMenu) {
     hamburger.addEventListener('click', () => {
-      navMenu.classList.toggle('open');
+      const isOpen = navMenu.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', String(isOpen));
+      hamburger.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
     });
     navMenu.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => navMenu.classList.remove('open'));
+      a.addEventListener('click', () => {
+        navMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.setAttribute('aria-label', 'Abrir menu');
+      });
     });
   }
 
   /* ---- Active nav  ---- */
   const sections = document.querySelectorAll('section[id]');
   const navLinks  = document.querySelectorAll('nav ul a');
-  const observer  = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        navLinks.forEach(l => l.classList.remove('active'));
-        const active = document.querySelector(`nav ul a[href="#${e.target.id}"]`);
-        if (active) active.classList.add('active');
-      }
-    });
-  }, { threshold: 0.35 });
-  sections.forEach(s => observer.observe(s));
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`nav ul a[href="#${e.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.35 });
+    sections.forEach(s => observer.observe(s));
+  }
 
   /* ---- Typed text ---- */
   const roles = [
@@ -37,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let roleIdx = 0, charIdx = 0, deleting = false;
   const typedEl = document.getElementById('typed-role');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function typeLoop() {
     if (!typedEl) return;
@@ -57,10 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setTimeout(typeLoop, deleting ? 55 : 90);
   }
-  typeLoop();
+  if (typedEl && reduceMotion) {
+    typedEl.textContent = roles[0];
+  } else if (typedEl) {
+    typeLoop();
+  }
 
   /* ---- GSAP ---- */
-  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+  if (!reduceMotion && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
 
     /* Hero entrance */

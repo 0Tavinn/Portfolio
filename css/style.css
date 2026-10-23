@@ -42,6 +42,11 @@ body {
   overflow-x: hidden;
 }
 
+:is(a, button):focus-visible {
+  outline: 3px solid var(--caramel);
+  outline-offset: 4px;
+}
+
 /* ---- texture overlay ---- */
 body::before {
   content: '';
@@ -989,5 +994,18 @@ footer a { color: var(--caramel); text-decoration: none; }
     padding: 1.5rem 2rem;
     border-bottom: 3px solid var(--caramel);
     gap: 1.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
